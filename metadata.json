@@ -1,0 +1,6 @@
+{
+  "name": "MMD Pose AI",
+  "description": "Image to 3D Pose Retargeting Studio for MikuMikuDance with PMX/PMD skeleton analysis, model-aware quaternion retargeting, facial morph mapping, and genuine VPD/VMD export.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,1165 @@
+# MASTER DEVELOPMENT PROMPT
+# MMD Pose AI – Image to 3D Pose Retargeting Studio
+
+## 1. YOUR ROLE
+
+Act as a senior desktop software engineer, AI computer vision engineer, 3D skeletal animation engineer, MikuMikuDance (MMD) technical specialist, and UI/UX designer.
+
+Your task is to design and develop a fully functional Windows desktop application called:
+
+**MMD Pose AI – Image to 3D Pose Retargeting Studio**
+
+This must be a real, working desktop application, not a prototype, static interface, mockup, or demonstration.
+
+The application must connect to the user's existing MikuMikuDance workflow, import actual MMD character models, understand their individual skeletal structures, analyze reference images using AI, reconstruct the detected pose in 3D, and export correctly mapped MMD-compatible pose and motion files.
+
+The most important requirement is accuracy when transferring a pose from a reference image to a specific MMD model.
+
+Never assume that every MMD model has the same bones, skeleton hierarchy, local axes, rest pose, or IK configuration.
+
+---
+
+# 2. CORE OBJECTIVE
+
+The entire application must follow this workflow:
+
+Reference Image + Target MMD Model
+↓
+AI Reference Image Analysis
+↓
+2D Body, Hand, Face and Expression Detection
+↓
+3D Pose Reconstruction
+↓
+Target PMX/PMD Skeleton Analysis
+↓
+Automatic Bone Mapping
+↓
+Model-Aware Pose Retargeting
+↓
+IK and Joint Constraint Correction
+↓
+3D Preview
+↓
+Manual Pose Refinement
+↓
+MMD-Compatible Export
+
+The user should only need to:
+
+1. Import or select an MMD model.
+2. Import a reference image.
+3. Click Analyze Reference.
+4. Review the reconstructed pose on their selected model.
+5. Adjust anything necessary.
+6. Export the final pose.
+
+The application should handle the complicated mathematics, AI processing, skeletal mapping, rotations, coordinate conversions, and file generation automatically.
+
+# 3. MMD SOFTWARE INTEGRATION
+
+The application must work with the user's existing MikuMikuDance installation.
+
+### MMD installation detection
+
+Implement:
+
+- Automatic detection of common MMD installation locations.
+- Manual selection of the MMD executable.
+- Ability to remember the MMD installation directory.
+- An option to open MMD directly from the application.
+- An option to open the exported pose or motion directory.
+- An MMD integration status indicator.
+
+If automatic detection fails, let the user manually browse to the MMD executable.
+
+### Integration architecture
+
+Build the primary integration around reliable MMD file interchange.
+
+Do not assume MMD has a universal live-control API.
+
+The application must reliably generate files that can be loaded into the actual MMD program. A future optional bridge/plugin can provide more advanced direct communication, but the primary workflow must not depend on undocumented process manipulation.
+
+### MMD-compatible files
+
+The application must support:
+
+- PMX – MMD model format.
+- PMD – Legacy MMD model format.
+- VPD – Static pose data.
+- VMD – Motion and facial morph animation data.
+
+The application must also understand the difference between static pose information and animation information.
+
+# 4. MMD MODEL IMPORT AND SKELETON ANALYSIS
+
+This is one of the most important parts of the entire application.
+
+The application must allow the user to import their actual MMD model.
+
+Supported formats:
+
+- .pmx
+- .pmd
+
+After importing a model, the application must parse and analyze its complete skeletal structure.
+
+### A. Model inspection
+
+Read and analyze:
+
+- Model name.
+- Model type.
+- Number of bones.
+- Japanese bone names.
+- English bone names.
+- Bone hierarchy.
+- Parent-child relationships.
+- Bone positions.
+- Bone tail positions.
+- Bone local coordinate systems.
+- Bone rotation permissions.
+- Bone translation permissions.
+- Fixed-axis configurations.
+- Inherited rotation.
+- Inherited translation.
+- IK configurations.
+- IK chains and links.
+- Deformation hierarchy.
+- Morph names and types.
+- Facial morphs.
+- Eye morphs.
+- Eyebrow morphs.
+- Mouth morphs.
+- Group morph relationships.
+- Relevant model metadata.
+
+Do not merely read bone names. Understand how the skeleton is actually constructed.
+
+### B. Bone identification
+
+Automatically identify standard MMD bones, including:
+
+- Center
+- Groove
+- Lower Body
+- Upper Body
+- Upper Body 2
+- Upper Body 3
+- Neck
+- Head
+- Shoulder
+- Arm
+- Arm Twist
+- Elbow
+- Wrist Twist
+- Wrist
+- Thumb
+- Index Finger
+- Middle Finger
+- Ring Finger
+- Little Finger
+- Leg
+- Knee
+- Ankle
+- Toe
+- Leg IK
+- Toe IK
+
+Support Japanese and English naming conventions.
+
+Create an extensible bone alias dictionary.
+
+For example:
+
+Japanese names should correctly map to their English equivalents without relying on identical string names.
+
+### C. Custom skeleton support
+
+Some MMD models have additional bones, unusual naming conventions, extra twist bones, different shoulder configurations, or nonstandard skeleton structures.
+
+The application must not assume that every model follows the standard MMD humanoid structure.
+
+When a standard bone is missing:
+
+- Search for a valid equivalent using skeleton topology and bone relationships.
+- Check bone positions and orientations.
+- Check parent-child relationships.
+- Ask for manual mapping when the confidence is low.
+- Never silently assign an unrelated bone.
+
+Provide a Bone Mapping Editor where the user can manually correct mappings.
+
+Allow saving custom mappings for future sessions.
+
+# 5. 3D MODEL VIEWPORT
+
+After importing the model, display it in a proper interactive 3D viewport.
+
+The viewport should include:
+
+- Real-time 3D model rendering.
+- Orbit camera.
+- Pan camera.
+- Zoom.
+- Front view.
+- Back view.
+- Left view.
+- Right view.
+- Top view.
+- Perspective view.
+- Bone visualization.
+- Skeleton hierarchy.
+- Selected bone highlighting.
+- Joint visualization.
+- Coordinate axes.
+- Ground plane.
+- Model reset.
+- Wireframe or skeleton-only inspection mode.
+
+Display the complete imported character with its original geometry, textures, materials, and proportions.
+
+Use an actual MMD-compatible 3D loading pipeline.
+
+A suitable rendering foundation is Three.js with MMDLoader, including support for PMX/PMD models and MMD animation resources.
+
+Do not replace the actual model with a generic humanoid dummy.
+
+The imported target model must be used throughout the retargeting process.
+
+# 6. REFERENCE IMAGE IMPORT
+
+Create a dedicated Reference Image panel.
+
+Support:
+
+- PNG
+- JPG
+- JPEG
+- WEBP
+
+The user must be able to:
+
+- Browse for an image.
+- Drag and drop an image.
+- Replace an image.
+- Zoom into an image.
+- Pan around an image.
+- Crop the image.
+- Rotate the image.
+- Select the main character in the image.
+- Ignore unwanted background objects.
+
+Support photographs, anime illustrations, drawings, and 3D character renders where the selected AI model can reasonably analyze them.
+
+### Multiple-person detection
+
+When multiple people are present:
+
+- Detect individual subjects.
+- Display subject selection options.
+- Analyze only the selected subject.
+- Ignore other people unless explicitly selected.
+
+Never accidentally combine the body parts of different people.
+
+# 7. AI REFERENCE ANALYSIS ENGINE
+
+This is the primary intelligent component.
+
+The AI must analyze the reference image and extract the complete visible pose, body orientation, hand positions, and facial expression.
+
+Do not simply detect a few major body landmarks and approximate everything else.
+
+Create a modular AI inference system so different pose-estimation models can be integrated without redesigning the entire application.
+
+Possible model integrations include compatible versions of:
+
+- RTMPose or ViTPose for body keypoints.
+- MediaPipe Pose Landmarker for body analysis.
+- MediaPipe Hand Landmarker or another hand-pose model.
+- Face Landmarker for facial landmarks.
+- A monocular 3D pose estimation model for estimating depth and spatial orientation.
+- A compatible vision model for interpreting stylized illustrations.
+
+Model selection should be modular and configurable.
+
+### A. Full body detection
+
+Identify:
+
+- Head position.
+- Neck.
+- Left shoulder.
+- Right shoulder.
+- Left elbow.
+- Right elbow.
+- Left wrist.
+- Right wrist.
+- Left hand.
+- Right hand.
+- Chest.
+- Upper torso.
+- Waist.
+- Pelvis.
+- Left hip.
+- Right hip.
+- Left knee.
+- Right knee.
+- Left ankle.
+- Right ankle.
+- Left foot.
+- Right foot.
+- Toe orientation.
+
+### B. Body orientation
+
+Determine:
+
+- Front-facing orientation.
+- Back-facing orientation.
+- Left-facing orientation.
+- Right-facing orientation.
+- Three-quarter orientation.
+- Torso rotation.
+- Head rotation.
+- Shoulder tilt.
+- Hip rotation.
+- Body leaning.
+- Body bending.
+- Weight distribution.
+
+Detect whether the subject is standing, sitting, crouching, kneeling, lying down, jumping, or performing another recognizable pose.
+
+### C. Hand and finger detection
+
+Hand positioning must receive special attention.
+
+Identify the position and orientation of each visible finger:
+
+- Thumb.
+- Index finger.
+- Middle finger.
+- Ring finger.
+- Little finger.
+
+Detect:
+
+- Finger bending.
+- Finger extension.
+- Finger separation.
+- Hand rotation.
+- Wrist rotation.
+- Palm orientation.
+- Hand-to-face positioning.
+- Hand-to-body contact.
+
+Map detected hand information to the actual finger bones available in the selected MMD model.
+
+Do not create unrealistic finger rotations when the reference does not provide enough information.
+
+### D. Facial landmark detection
+
+Analyze the available face information.
+
+Detect:
+
+- Head orientation.
+- Eye position.
+- Left eye openness.
+- Right eye openness.
+- Eyebrow positioning.
+- Mouth shape.
+- Mouth openness.
+- Smile.
+- Frown.
+- Neutral expression.
+- Surprised expression.
+- Angry expression.
+- Sad expression.
+- Eye direction.
+- Gaze direction.
+
+The application should estimate the expression from the reference image rather than simply choose an arbitrary facial expression.
+
+If the reference face is too small, obscured, or ambiguous, show a confidence warning.
+
+Do not invent facial information that cannot be reliably observed.
+
+# 8. 2D TO 3D POSE RECONSTRUCTION
+
+A reference image is two-dimensional, whereas an MMD character uses a three-dimensional skeleton.
+
+Therefore, the AI must reconstruct a plausible 3D pose before transferring it to the target model.
+
+Do not directly translate 2D pixel coordinates into 3D bone rotations.
+
+The system must:
+
+1. Detect 2D landmarks.
+2. Estimate anatomical relationships.
+3. Estimate body orientation.
+4. Estimate depth.
+5. Reconstruct a 3D skeletal pose.
+6. Evaluate alternative depth interpretations when necessary.
+7. Fit the reconstructed pose to the proportions of the target model.
+8. Project the resulting 3D pose back onto the reference image for comparison.
+
+### Important reconstruction rules
+
+- Use anatomical constraints.
+- Preserve realistic limb lengths.
+- Avoid impossible joint angles.
+- Detect incorrect left/right assignments.
+- Account for perspective distortion.
+- Estimate the correct shoulder and hip orientation.
+- Avoid unnecessary body twisting.
+- Detect foot placement and ground contact.
+- Preserve hand positions.
+- Avoid incorrectly bending elbows or knees.
+
+When information is hidden by clothing, occlusion, or perspective, estimate the hidden joint positions using anatomical constraints.
+
+However, do not pretend that a single image provides perfect depth information.
+
+When multiple 3D poses are plausible, provide a best estimate and allow the user to select or adjust the result.
+
+# 9. MODEL-AWARE BONE RETARGETING ENGINE
+
+This is the most critical feature.
+
+The application must translate the reconstructed 3D pose into the actual bone structure of the imported MMD character.
+
+It must not use a generic humanoid rig as the final target.
+
+### A. Rest-pose analysis
+
+Before transferring any pose, understand the model's original skeleton and rest configuration.
+
+Analyze:
+
+- Rest-pose bone orientation.
+- Bone positions.
+- Parent transformations.
+- Local axes.
+- Bone lengths.
+- Hierarchy.
+- Rotation constraints.
+- Fixed axes.
+- IK configurations.
+- Additional twist bones.
+- Inherited transformations.
+
+Account for different T-pose and A-pose configurations.
+
+### B. Correct rotation calculations
+
+Use proper 3D transformation mathematics.
+
+Implement:
+
+- Local-space transformations.
+- World-space transformations.
+- Parent-child transformation calculations.
+- Quaternion-based rotations.
+- Coordinate-system conversion.
+- Bone orientation correction.
+- Rotation normalization.
+- Joint constraints.
+- Inverse kinematics.
+
+Avoid relying on simple Euler-angle assignments.
+
+Quaternion-based calculations should be used where appropriate to avoid unexpected rotations, singularities, and axis-flipping problems.
+
+### C. Bone distribution
+
+Do not place the entire rotation of an arm into a single bone when the model contains additional twist or helper bones.
+
+Distribute rotations correctly across:
+
+- Shoulder.
+- Arm.
+- Arm twist.
+- Elbow.
+- Wrist twist.
+- Wrist.
+- Finger bones.
+
+Likewise, correctly distribute torso and leg transformations across available bones.
+
+Respect the actual skeleton structure.
+
+### D. IK correction
+
+Implement proper IK-aware handling for:
+
+- Left arm.
+- Right arm.
+- Left leg.
+- Right leg.
+- Feet.
+- Toes.
+
+Use the imported model's IK configuration rather than assuming every model has identical IK chains.
+
+Avoid double-applying IK and direct bone rotations.
+
+Detect potential IK conflicts and correct them before exporting.
+
+### E. Left and right accuracy
+
+This must be extremely reliable.
+
+The application must distinguish:
+
+- Character's anatomical left.
+- Character's anatomical right.
+- Image left.
+- Image right.
+- Camera-facing direction.
+
+Do not confuse the subject's left and right limbs with the viewer's left and right.
+
+Add an option to mirror the final pose intentionally.
+
+# 10. JOINT VALIDATION AND POSE CORRECTION
+
+Before accepting the generated pose, run a validation process.
+
+Check:
+
+- Elbow bending direction.
+- Knee bending direction.
+- Shoulder rotation.
+- Wrist rotation.
+- Finger orientation.
+- Hip alignment.
+- Torso bending.
+- Neck rotation.
+- Head orientation.
+- Feet placement.
+- Joint limits.
+- Bone collisions where practical.
+- Unnatural body intersections.
+
+Detect:
+
+- Twisted limbs.
+- Broken arm orientations.
+- Reversed knees.
+- Inverted wrists.
+- Unnatural shoulder rotations.
+- Disconnected-looking joints.
+- Incorrect torso twisting.
+- Unreasonable bone displacement.
+
+When a problem is detected, try to correct it using the model's real skeleton constraints.
+
+Never silently accept a clearly invalid transformation.
+
+Provide a validation report identifying any remaining problems.
+
+# 11. FACIAL EXPRESSION RETARGETING
+
+The facial expression must be mapped to the imported model's actual morph system.
+
+Read all facial morphs from the selected PMX/PMD model.
+
+Identify morphs for:
+
+- Eyes.
+- Eyebrows.
+- Mouth.
+- Smile.
+- Sadness.
+- Anger.
+- Surprise.
+- Eye blinking.
+- Eye direction.
+- Mouth vowels.
+- Other expression controls.
+
+Create an automatic facial morph-mapping engine.
+
+For example:
+
+Reference image shows a smile.
+↓
+AI identifies facial expression.
+↓
+Application finds available smile-related morphs.
+↓
+Calculates appropriate morph weights.
+↓
+Applies them in the 3D preview.
+↓
+Exports the corresponding morph keyframes.
+
+### Facial customization
+
+Allow users to adjust:
+
+- Left eye openness.
+- Right eye openness.
+- Mouth openness.
+- Smile intensity.
+- Eyebrow intensity.
+- Facial expression strength.
+- Eye direction.
+
+Do not create nonexistent morphs.
+
+If a suitable morph is unavailable, report the limitation and provide the closest valid alternative.
+
+# 12. INTERACTIVE POSE EDITOR
+
+The generated pose must be editable before export.
+
+Provide:
+
+### Bone editor
+
+- Select individual bones.
+- Rotate bones.
+- Adjust permitted bone translations.
+- Reset individual bones.
+- Reset an entire limb.
+- Mirror bone transformations.
+- Display the selected bone's information.
+- Adjust rotation using sliders.
+- Adjust rotation numerically.
+- Undo and redo.
+
+### Pose controls
+
+- Overall pose strength.
+- Body rotation.
+- Head rotation.
+- Arm positioning.
+- Leg positioning.
+- Hand positioning.
+- Finger positioning.
+- Foot positioning.
+- Balance correction.
+
+### Expression controls
+
+- Facial expression intensity.
+- Eye openness.
+- Mouth openness.
+- Eyebrow adjustment.
+- Gaze adjustment.
+
+Every manual change must immediately update the model in the 3D viewport.
+
+# 13. LIVE REFERENCE COMPARISON
+
+Create a powerful comparison workspace.
+
+Display:
+
+LEFT PANEL:
+Reference image with detected 2D skeletal landmarks.
+
+RIGHT PANEL:
+Actual imported MMD model displaying the reconstructed 3D pose.
+
+Allow synchronized examination of:
+
+- Head angle.
+- Shoulder angle.
+- Arm positions.
+- Wrist positions.
+- Hip rotation.
+- Knee angles.
+- Foot positioning.
+- Hand positioning.
+
+Add an optional overlay mode to compare the projected 3D pose with the original reference.
+
+The user should be able to rotate the 3D camera without changing the actual character pose.
+
+# 14. EXPORT SYSTEM
+
+Export must be compatible with actual MikuMikuDance.
+
+Do not export only an internal JSON file and claim it is an MMD pose.
+
+The application must generate genuine MMD-readable files.
+
+### A. VPD export
+
+Generate:
+
+`PoseName.vpd`
+
+This file must contain the model-compatible static bone transformations.
+
+Requirements:
+
+- Correct bone names.
+- Correct transformation values.
+- Correct quaternion values.
+- Correct coordinate handling.
+- Correct model filename metadata.
+- Correct VPD text structure.
+- Correct Shift_JIS encoding where required.
+- Valid VPD syntax.
+
+Only include valid target-model bones.
+
+### B. VMD export
+
+Generate:
+
+`PoseName_Full.vmd`
+
+This should contain:
+
+- Bone transformations.
+- Facial morph keyframes.
+- Correct model compatibility information.
+- A suitable single-frame pose representation.
+- Valid frame numbering.
+- Correct encoding.
+
+Also provide:
+
+`PoseName_Face.vmd`
+
+This should contain facial morph keyframes only, making it possible to apply the body pose and facial expression separately.
+
+### C. Important VMD limitations
+
+Handle VMD's fixed-length bone and morph name fields correctly.
+
+Validate names against the 15-byte limit.
+
+Do not silently truncate names and accidentally create duplicate or incorrect bone mappings.
+
+Show warnings and require a safe resolution if a target bone or morph cannot be represented correctly.
+
+### D. Export options
+
+Provide:
+
+- Export VPD.
+- Export complete VMD.
+- Export facial VMD.
+- Export all files.
+- Export project.
+
+### E. MMD import instructions
+
+Display simple instructions:
+
+For VPD:
+1. Open MikuMikuDance.
+2. Load the target model.
+3. Go to File.
+4. Select Load Pose Data.
+5. Select the generated VPD file.
+
+For VMD:
+1. Load the model.
+2. Load the generated motion.
+3. Register or apply the frame as appropriate.
+
+Also include a button to open the exported files' directory.
+
+# 15. PROJECT FILE SYSTEM
+
+Create an internal project format:
+
+`.mmdpose.json`
+
+This file should store:
+
+- Target model metadata.
+- Model file reference.
+- Reference image reference.
+- Detected landmarks.
+- Reconstructed 3D skeleton.
+- Bone mapping.
+- Rotation values.
+- Quaternion values.
+- Morph mappings.
+- Morph weights.
+- Validation results.
+- User adjustments.
+- Export settings.
+
+This format is for reopening and editing projects inside this application. It is not a replacement for actual MMD export files.
+
+Allow saving, reopening, and continuing previous projects.
+
+The original PMX/PMD model must never be modified unless the user explicitly requests a separate model-editing operation.
+
+# 16. USER INTERFACE DESIGN
+
+Create a professional desktop application with a modern, polished interface.
+
+Visual direction:
+
+- Dark professional interface.
+- Charcoal background.
+- Subtle blue or cyan accent.
+- Clear typography.
+- Minimal unnecessary decoration.
+- Smooth transitions.
+- Professional 3D software aesthetic.
+- Responsive panels.
+- Proper loading indicators.
+- Clear error messages.
+
+Avoid excessive glowing effects and unnecessary animations.
+
+### Main layout
+
+LEFT SIDEBAR:
+- Dashboard.
+- Model Library.
+- Reference Image.
+- Pose Analysis.
+- Bone Mapping.
+- Expression Editor.
+- Export.
+- Settings.
+
+CENTER:
+- Main 3D model viewport.
+
+RIGHT PANEL:
+- Model information.
+- Skeleton hierarchy.
+- Bone controls.
+- Facial controls.
+- Pose validation.
+
+BOTTOM PANEL:
+- Processing status.
+- Analysis progress.
+- Export progress.
+- Warnings and errors.
+
+### Main workflow buttons
+
+- Import Model
+- Import Reference
+- Analyze Reference
+- Generate 3D Pose
+- Auto Correct
+- Preview
+- Export VPD
+- Export VMD
+
+Make the interface intuitive enough that the user does not need to understand 3D mathematics to use it.
+
+# 17. PERFORMANCE AND LOCAL AI
+
+Build the application to support local processing.
+
+Provide:
+
+- NVIDIA CUDA acceleration when supported.
+- CPU fallback.
+- Automatic hardware detection.
+- Configurable inference quality.
+- Configurable AI model selection.
+- VRAM-aware model loading.
+- RAM-aware processing.
+- Progress tracking.
+- Model caching.
+- Error recovery.
+
+Do not require an unnecessarily large AI model for every operation.
+
+Use modular AI providers so additional local or cloud-based models can be added later.
+
+Cloud AI must be optional.
+
+Never upload a reference image or model to an external service without the user's explicit consent.
+
+The app should remain useful without an internet connection when the necessary AI models are installed.
+
+# 18. ERROR HANDLING AND RELIABILITY
+
+Handle these scenarios properly:
+
+- Corrupted PMX file.
+- Unsupported PMD file.
+- Missing model textures.
+- Missing standard bones.
+- Unknown bone names.
+- Unusual skeleton structures.
+- Missing IK chains.
+- Missing facial morphs.
+- Incorrect reference image.
+- Multiple people in a reference image.
+- Occluded body parts.
+- Low-confidence landmarks.
+- Invalid rotation values.
+- VPD encoding errors.
+- VMD name-length errors.
+- Export permission errors.
+- Missing MMD installation.
+
+Display useful error messages explaining the actual problem.
+
+Never produce a supposedly successful export when the resulting file is invalid.
+
+Implement automatic backups of the application's project data.
+
+# 19. DEVELOPMENT ARCHITECTURE
+
+Use a modular architecture.
+
+A suggested foundation:
+
+**Desktop application**
+- Electron.
+- React.
+- TypeScript.
+
+**3D rendering**
+- Three.js.
+- MMDLoader.
+- MMDAnimationHelper where appropriate.
+- Custom retargeting and preview components.
+
+**AI processing**
+- Python.
+- PyTorch.
+- FastAPI local inference service.
+- Modular pose, hand, face, and 3D reconstruction providers.
+
+**MMD data processing**
+- Dedicated PMX/PMD parser.
+- VPD parser and exporter.
+- VMD parser and exporter.
+- Bone mapping engine.
+- Quaternion transformation engine.
+- IK and constraint solver.
+
+Keep all major systems separate.
+
+Suggested modules:
+
+1. ModelImporter
+2. PMXParser
+3. PMDParser
+4. SkeletonAnalyzer
+5. BoneMappingEngine
+6. ReferenceImageAnalyzer
+7. HumanPoseEstimator
+8. HandPoseEstimator
+9. FacialExpressionAnalyzer
+10. Pose3DReconstructor
+11. RetargetingEngine
+12. QuaternionSolver
+13. IKConstraintSolver
+14. PoseValidator
+15. FacialMorphMapper
+16. VPDExporter
+17. VMDExporter
+18. ProjectManager
+19. MMDIntegrationManager
+
+Create clear interfaces between the AI service and desktop application.
+
+Do not put all functionality into one enormous source file.
+
+# 20. TESTING AND QUALITY ASSURANCE
+
+The application must be tested using different MMD models.
+
+Test cases must include:
+
+- Standard humanoid model.
+- Japanese bone naming.
+- English bone naming.
+- A-pose model.
+- T-pose model.
+- Model with additional twist bones.
+- Model with unusual skeleton hierarchy.
+- Model with incomplete finger bones.
+- Model with different facial morph conventions.
+- Model with custom IK configurations.
+
+Test reference poses such as:
+
+- Standing straight.
+- Both arms raised.
+- One arm raised.
+- Crossed arms.
+- Sitting.
+- Crouching.
+- Kneeling.
+- Running.
+- Jumping.
+- Side-facing pose.
+- Back-facing pose.
+- Complex hand gesture.
+- Hand touching the face.
+- Extreme body bending.
+
+### Export validation
+
+Every generated file must be checked before being marked successful.
+
+Test that:
+
+- The VPD can be loaded by MMD.
+- The VPD targets the correct bones.
+- The complete VMD contains valid bone data.
+- Facial morphs load correctly.
+- No unintended bone transformations occur.
+- No invalid quaternion values exist.
+- Missing bones are reported.
+- Long VMD names are handled safely.
+- Reloading a saved project preserves the pose.
+
+Create automated tests for file parsing, exporting, coordinate conversion, and bone mapping.
+
+# 21. IMPLEMENTATION PHASES
+
+Develop the application in the following order.
+
+**PHASE 1 – MMD FOUNDATION**
+
+Build:
+- Desktop application foundation.
+- PMX/PMD import.
+- 3D model viewport.
+- Skeleton hierarchy.
+- Bone inspection.
+- Model information panel.
+
+**PHASE 2 – MMD EXPORT ENGINE**
+
+Build:
+- Bone transformation system.
+- Quaternion handling.
+- VPD generation.
+- VMD generation.
+- Facial morph export.
+- MMD file validation.
+
+First prove that the application can correctly export and reload a manually created pose.
+
+**PHASE 3 – AI IMAGE ANALYSIS**
+
+Build:
+- Reference image import.
+- Body pose detection.
+- Hand detection.
+- Face landmark detection.
+- Facial expression estimation.
+- Confidence visualization.
+
+**PHASE 4 – 3D RECONSTRUCTION AND RETARGETING**
+
+Build:
+- 3D pose reconstruction.
+- Target skeleton fitting.
+- Automatic bone mapping.
+- Local-axis correction.
+- IK correction.
+- Joint validation.
+- Pose refinement.
+
+**PHASE 5 – FULL EDITOR**
+
+Build:
+- Live comparison.
+- Manual bone editor.
+- Expression editor.
+- Undo and redo.
+- Project saving.
+- Model library.
+- Export management.
+
+**PHASE 6 – FINALIZATION**
+
+Build:
+- Error handling.
+- Hardware optimization.
+- Automated tests.
+- Windows packaging.
+- Application installer.
+- Documentation.
+
+Do not skip a phase if its core functionality is necessary for the next phase.
+
+# 22. NON-NEGOTIABLE REQUIREMENTS
+
+These rules must be followed throughout development.
+
+1. The selected PMX/PMD model is the actual target of all pose calculations.
+
+2. Never rely exclusively on generic humanoid bone names.
+
+3. Never blindly transfer 2D pixel coordinates into bone rotations.
+
+4. Always account for local bone axes, hierarchy, rest pose, and model-specific IK.
+
+5. Never introduce random rotations to missing bones.
+
+6. Never reverse left and right limbs.
+
+7. Never apply the same rotation twice through direct transforms and IK.
+
+8. Never modify the source model without permission.
+
+9. Never export fake or incomplete VPD/VMD files.
+
+10. Keep body pose and facial morph export compatible with the actual MMD file formats.
+
+11. Provide manual correction tools when AI confidence is insufficient.
+
+12. Make every exported pose reusable in actual MikuMikuDance.
+
+13. Do not claim perfect reconstruction when the reference image does not contain enough information to determine hidden 3D geometry.
+
+14. Do not build a UI-only demonstration. Every visible control must perform its advertised function.
+
+15. Prioritize pose accuracy, model compatibility, and data integrity over decorative features.
+
+# 23. FINAL DELIVERABLES
+
+Deliver a complete Windows desktop application containing:
+
+- Full source code.
+- Organized project structure.
+- Working desktop UI.
+- AI processing engine.
+- PMX/PMD import system.
+- 3D model preview.
+- Skeleton analysis.
+- Automatic bone mapping.
+- AI image analysis.
+- 3D pose reconstruction.
+- Model-aware retargeting.
+- IK and joint correction.
+- Facial expression mapping.
+- Interactive pose editor.
+- Genuine VPD export.
+- Genuine VMD export.
+- Project save and reopen functionality.
+- MMD integration settings.
+- Error handling.
+- Automated tests.
+- README and installation instructions.
+- Windows executable installer.
+
+Provide a complete working implementation rather than a collection of disconnected code snippets.
+
+If a feature requires additional models or dependencies, document how to install them and provide a working setup process.
+
+The finished application must allow this complete user experience:
+
+**Import my MMD character → Upload a reference picture → Let AI understand the pose and facial expression → Reconstruct it on my actual character → Correct anything necessary → Export a genuine MMD-compatible pose and motion file → Reuse it in MikuMikuDance.**
+
+That is the primary goal of this project.
