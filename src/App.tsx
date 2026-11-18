@@ -21,6 +21,8 @@ import { BoneMappingView } from './components/BoneMappingView';
 import { ExpressionsView } from './components/ExpressionsView';
 import { ExportMMDView } from './components/ExportMMDView';
 import { SettingsView } from './components/SettingsView';
+import { PWAInstallButton } from './components/PWAInstallButton';
+import { OfflineIndicator } from './components/OfflineIndicator';
 import { parseMMDModel } from './engine/pmxParser';
 import {
   BUILTIN_MODEL_PRESETS,
@@ -771,7 +773,8 @@ export default function App() {
           ))}
         </nav>
 
-        <div className="flex items-center shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
+          <PWAInstallButton compact />
           <button
             type="button"
             disabled={isAnalyzing}
@@ -1250,6 +1253,8 @@ export default function App() {
           )}
         </div>
       </footer>
+
+      <OfflineIndicator />
     </div>
   );
 }

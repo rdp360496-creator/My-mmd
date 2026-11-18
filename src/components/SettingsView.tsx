@@ -1,6 +1,8 @@
 import React from 'react';
-import { FolderCheck, Cpu, ShieldCheck } from 'lucide-react';
+import { FolderCheck, Cpu, ShieldCheck, Globe } from 'lucide-react';
 import { COMMON_MMD_PATHS } from '../engine/projectManager';
+import { usePWAInstall } from '../hooks/usePWAInstall';
+import { PWAInstallButton } from './PWAInstallButton';
 import type { MMDIntegrationConfig } from '../engine/types';
 
 interface SettingsViewProps {
@@ -14,6 +16,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   hasServerGeminiKey,
   onUpdateConfig,
 }) => {
+  const { isInstalled, isInstallable } = usePWAInstall();
   return (
     <div className="h-full overflow-y-auto bg-[#0D1117] p-6">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -142,6 +145,39 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 <option value="high">High Precision (Multi-Pass IK & Depth)</option>
               </select>
             </div>
+          </div>
+        </div>
+
+        {/* Progressive Web App & Standalone Install */}
+        <div
+          data-testid="pwa-settings-card"
+          className="bg-[#11161E] border border-[#222B38] rounded-md p-4 space-y-3"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Globe className="w-4 h-4 text-sky-400" />
+              <h2 className="text-sm font-semibold text-white">Standalone Web App (PWA)</h2>
+            </div>
+            <span
+              className={`font-mono text-[11px] ${
+                isInstalled ? 'text-emerald-400' : 'text-sky-300'
+              }`}
+            >
+              {isInstalled ? 'Running Standalone' : 'Offline-Ready Web App'}
+            </span>
+          </div>
+
+          <p className="text-xs text-slate-400 leading-relaxed">
+            MMD Pose AI caches its 3D viewport, PMX/PMD skeleton analyzer, local vision engine, and VPD/VMD exporters for offline browser and standalone desktop/mobile use.
+          </p>
+
+          <div className="flex flex-wrap items-center gap-3 pt-1">
+            <PWAInstallButton compact={false} />
+            {!isInstalled && !isInstallable && (
+              <span className="text-[11px] text-slate-400">
+                Desktop Chrome / Edge: open browser menu &rarr; <strong className="text-slate-200">Install MMD Pose AI</strong> (or <strong className="text-slate-200">Cast, save, and share &rarr; Install page as app</strong>) to run in a dedicated app window.
+              </span>
+            )}
           </div>
         </div>
       </div>
